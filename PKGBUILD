@@ -1,6 +1,6 @@
 # Maintainer: Jack Mahoney <jacksmahoney@gmail.com>
 pkgname=openai-codex-bin
-pkgver=0.8.0
+pkgver=0.9.0
 pkgrel=3
 pkgdesc="Lightweight coding agent that runs in your terminal"
 arch=('x86_64' 'aarch64')
@@ -18,22 +18,18 @@ source_x86_64=(
     "https://github.com/openai/codex/releases/download/rust-v${pkgver}/codex-exec-x86_64-unknown-linux-gnu.tar.gz"
     "https://github.com/openai/codex/releases/download/rust-v${pkgver}/codex-linux-sandbox-x86_64-unknown-linux-gnu.tar.gz"
 )
-sha256sums_x86_64=(
-    '23c207fdd08e88f2e1e4d5bc8aaded5bf2bb301d7606acdf6ad6ee65d6470651'
-    '43bc186043ef60262e356fc8d18f8439fc47341f0b1b53dd5e22c6158b523c4f'
-    '2d9f3b6c776a70d341ec7ac4535f638f48f7bc8fca3d4256e80c55e01c65b566'
-)
-
 source_aarch64=(
     "https://github.com/openai/codex/releases/download/rust-v${pkgver}/codex-aarch64-unknown-linux-gnu.tar.gz"
     "https://github.com/openai/codex/releases/download/rust-v${pkgver}/codex-exec-aarch64-unknown-linux-gnu.tar.gz"
     "https://github.com/openai/codex/releases/download/rust-v${pkgver}/codex-linux-sandbox-aarch64-unknown-linux-gnu.tar.gz"
 )
-sha256sums_aarch64=(
-    'cc112e0cb8c3bd746e07ea7bd91773abc0fba6fe77ce364ef531dabd2e00d8a8'
-    '82c8bab4af07eb06e2c13ae4e936642d2c9a99a4b5f92367d466e2f430797890'
-    '1fb5d9cbb2296201e1cc079807c7e2491dc01e692379a8bc9244d48dc424ca38'
-)
+
+sha256sums_x86_64=('440b786574f55d09bacb2058647638f8cefc4cb881f6f94ff147a2075852b4ed'
+                   'dc1ad949e704ed6dabd780e4e0632fea1b4342d7e110c5c50176e311b3ad5a89'
+                   '6a35efd686f6c0b1133950aa4a077992ffb69a4014eaf6c7a545f497cee185b9')
+sha256sums_aarch64=('e9428a167f475b76dcaf5d6d314ce393db1de4294fef412f4bb8ea42bf10cf91'
+                    '2f444120b3438d45a546415c02083a1174dca471985395aa96fc77eaae96630a'
+                    'ffdc41953ef1dbcbac9cbe4a92f574b4c88a70443744e1ef0c8a14c55c68f007')
 
 package() {
     install -Dm755 "${srcdir}/codex-${CARCH}-unknown-linux-gnu" "${pkgdir}/usr/bin/codex"
