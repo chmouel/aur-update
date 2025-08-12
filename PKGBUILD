@@ -1,11 +1,11 @@
 # Maintainer: Jack Mahoney <jacksmahoney@gmail.com>
 pkgname=openai-codex-bin
-pkgver=0.19.0
+pkgver=0.21.0
 pkgrel=1
 pkgdesc="Lightweight coding agent that runs in your terminal"
 arch=('x86_64' 'aarch64')
 url="https://github.com/openai/codex"
-license=('Apache-2.0')
+license=('Apache')
 provides=('openai-codex')
 conflicts=('openai-codex')
 optdepends=(
@@ -15,24 +15,22 @@ optdepends=(
 
 source_x86_64=(
     "codex-${pkgver}.tar.gz::https://github.com/openai/codex/releases/download/rust-v${pkgver}/codex-x86_64-unknown-linux-gnu.tar.gz"
-    "codex-exec-${pkgver}.tar.gz::https://github.com/openai/codex/releases/download/rust-v${pkgver}/codex-exec-x86_64-unknown-linux-gnu.tar.gz"
-    "codex-linux-sandbox-${pkgver}.tar.gz::https://github.com/openai/codex/releases/download/rust-v${pkgver}/codex-linux-sandbox-x86_64-unknown-linux-gnu.tar.gz"
 )
-sha256sums_x86_64=('a8202a1846fc63053bd3118c4c6a306eb1534536b2a5038bff3394a70ac207c1'
-                   'f387427dcf4bd9af511a8ae72e8a2fa4098604c5a9233ec903d411bb86edd4a4'
-                   '2e1fe99b1c7917ae2e1f000ce425c46438ab5ebadb6e545e400237238e324b23')
+sha256sums_x86_64=('0100efc40a34e2bd42d49de43353a45b510772ea92aca52589ce637e6c432c5d')
 
 source_aarch64=(
     "codex-${pkgver}.tar.gz::https://github.com/openai/codex/releases/download/rust-v${pkgver}/codex-aarch64-unknown-linux-gnu.tar.gz"
-    "codex-exec-${pkgver}.tar.gz::https://github.com/openai/codex/releases/download/rust-v${pkgver}/codex-exec-aarch64-unknown-linux-gnu.tar.gz"
-    "codex-linux-sandbox-${pkgver}.tar.gz::https://github.com/openai/codex/releases/download/rust-v${pkgver}/codex-linux-sandbox-aarch64-unknown-linux-gnu.tar.gz"
 )
-sha256sums_aarch64=('a8202a1846fc63053bd3118c4c6a306eb1534536b2a5038bff3394a70ac207c1'
-                    'f387427dcf4bd9af511a8ae72e8a2fa4098604c5a9233ec903d411bb86edd4a4'
-                    '2e1fe99b1c7917ae2e1f000ce425c46438ab5ebadb6e545e400237238e324b23')
+sha256sums_aarch64=('7e63259f371112e8064ece02851323a0a325defd018f5770514dce9fa4fe7c94')
 
 package() {
-    install -Dm755 "${srcdir}/codex-${CARCH}-unknown-linux-gnu" "${pkgdir}/usr/bin/codex"
-    install -Dm755 "${srcdir}/codex-exec-${CARCH}-unknown-linux-gnu" "${pkgdir}/usr/bin/codex-exec"
-    install -Dm755 "${srcdir}/codex-linux-sandbox-${CARCH}-unknown-linux-gnu" "${pkgdir}/usr/bin/codex-linux-sandbox"
+    cd "$srcdir"
+
+    if [[ "$CARCH" == "x86_64" ]]; then
+        install -Dm755 "codex-x86_64-unknown-linux-gnu" "$pkgdir/usr/bin/codex"
+    fi
+
+    if [[ "$CARCH" == "aarch64" ]]; then
+        install -Dm755 "codex-aarch64-unknown-linux-gnu" "$pkgdir/usr/bin/codex"
+    fi
 }
