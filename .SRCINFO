@@ -1,7 +1,7 @@
 pkgbase = openai-codex-bin
-	pkgdesc = Lightweight coding agent that runs in your terminal
+	pkgdesc = Lightweight coding agent that runs in your terminal (binary release)
 	pkgver = 0.24.0
-	pkgrel = 1
+	pkgrel = 2
 	url = https://github.com/openai/codex
 	arch = x86_64
 	arch = aarch64
