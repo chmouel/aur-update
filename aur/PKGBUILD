@@ -6,7 +6,7 @@ arch=('x86_64' 'aarch64')
 url="https://github.com/openai/codex"
 license=('Apache')
 provides=('openai-codex')
-conflicts=('openai-codex')
+conflicts=('openai-codex' 'openai-codex-bin')
 optdepends=(
   'git: for working with git repositories'
   'ripgrep: accelerated large-repo search'

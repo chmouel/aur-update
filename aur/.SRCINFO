@@ -1,4 +1,4 @@
-pkgbase = openai-codex-bin
+pkgbase = openai-codex-autoup-bin
 	pkgdesc = Lightweight coding agent that runs in your terminal (binary release)
 	pkgver = 0.47.0
 	pkgrel = 1
@@ -15,4 +15,4 @@ pkgbase = openai-codex-bin
 	source_aarch64 = codex-0.47.0-aarch64.tar.gz::https://github.com/openai/codex/releases/download/rust-v0.47.0/codex-aarch64-unknown-linux-gnu.tar.gz
 	sha256sums_aarch64 = b8e050dc0940d5375ab4b9d9fe08b7cddf0c6608a2c94bfe5e007f664b677b52
 
-pkgname = openai-codex-bin
+pkgname = openai-codex-autoup-bin

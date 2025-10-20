@@ -1,6 +1,6 @@
-# openai-codex-bin AUR Package
+# openai-codex-autoup-bin AUR Package
 
-This repository contains the packaging files (`PKGBUILD`) for the `openai-codex-bin` package on the Arch User Repository (AUR).
+This repository contains the packaging files (`PKGBUILD`) for the `openai-codex-autoup-bin` package on the Arch User Repository (AUR).
 
 ## Automation
 
