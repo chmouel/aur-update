@@ -47,6 +47,7 @@ jobs:
 
           # Copy the updated files from our `aur` subdirectory
           cp -af aur/* /tmp/aur-repo/
+          cp -af aur/.SRCINFO /tmp/aur-repo/
 
           # Navigate into the cloned repo, configure git, and commit/push if changes exist
           cd /tmp/aur-repo
