@@ -19,6 +19,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Mark repository as safe
+        run: git config --global --add safe.directory "${{ github.workspace }}"
+
       - name: Set up SSH
         env:
           SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
@@ -37,7 +40,6 @@ jobs:
 
       - name: Commit and push changes
         run: |
-          git config --global --add safe.directory "${{ github.workspace }}"
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add .
