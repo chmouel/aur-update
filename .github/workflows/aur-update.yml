@@ -44,6 +44,6 @@ jobs:
             echo "No changes to commit."
           else
             git commit -m "Bump to ${{ steps.update.outputs.latest_version }}"
-            git remote set-url origin "ssh://aur@aur.archlinux.org/openai-codex-bin.git"
-            git push origin master
+            git remote add aur "ssh://aur@aur.archlinux.org/openai-codex-bin.git"
+            git push aur master
           fi
