@@ -1,7 +1,7 @@
 pkgname=openai-codex-bin
 pkgver=0.47.0
 pkgrel=1
-pkgdesc="Arch Linux package for OpenAI’s Codex CLI"
+pkgdesc="Arch Linux package for OpenAI’s Codex CLI - Auto Updated"
 arch=('x86_64' 'aarch64')
 url="https://github.com/openai/codex"
 license=('Apache')
