@@ -41,7 +41,9 @@ jobs:
       - name: Commit and push changes to AUR
         run: |
           # Clone the AUR repository into a temporary directory, specifying the SSH key and disabling strict host key checking
-          GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" git clone "ssh://aur@aur.archlinux.org/openai-codex-autoup-bin.git" /tmp/aur-repo
+          set -x
+          export GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" 
+          git clone "ssh://aur@aur.archlinux.org/openai-codex-autoup-bin.git" /tmp/aur-repo
 
           # Copy the updated files from our `aur` subdirectory
           cp -af aur/* /tmp/aur-repo/
@@ -56,5 +58,5 @@ jobs:
             echo "No changes to commit to AUR."
           else
             git commit -m "Bump to ${{ steps.update.outputs.latest_version }}"
-            git push origin master
+            git push "ssh://aur@aur.archlinux.org/openai-codex-autoup-bin.git" master
           fi
