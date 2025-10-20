@@ -1,40 +1,51 @@
-#!/usr/bin/env bash
-# Author: Chmouel Boudjnah <chmouel@chmouel.com>
-set -euxfo pipefail
-
+#!/bin/bash
 #
 # Run a GitHub Actions workflow and tail the logs of the new run.
 #
+set -euo pipefail
 
 WORKFLOW_NAME="aur-update.yml"
 
 echo "🏃 Triggering workflow: ${WORKFLOW_NAME}"
 gh workflow run "${WORKFLOW_NAME}"
 
-# Wait a moment for the run to be initiated on GitHub's side
-echo "⏱️ Waiting for the new workflow run to start..."
-sleep 5
+echo "🔍 Waiting for the new workflow run to appear..."
 
-echo "🔍 Finding the latest run..."
-# Use --template to format the output and read to assign to variables
-read -r RUN_ID RUN_URL < <(gh run list --workflow="${WORKFLOW_NAME}" --limit=1 --json databaseId,url --template '{{range .}}{{.databaseId}}{"\t"}{{.url}}{{end}}')
+# Retry logic to wait for the run to be created
+RUN_ID=""
+RUN_URL=""
+ATTEMPTS=0
+MAX_ATTEMPTS=12 # 12 * 5s = 60s timeout
+while [[ -z "${RUN_ID}" ]]; do
+    # Fetch the latest run's ID and URL.
+    # We store the output in a variable first to prevent `read` from exiting the script if the command returns empty.
+    RUN_DATA=$(gh run list --workflow="${WORKFLOW_NAME}" --limit=1 --json databaseId,url --template '{{range .}}{{.databaseId}}{{"\t"}}{{.url}}{{end}}')
 
-if [[ -z "${RUN_ID}" ]]; then
-  echo "❌ Could not find the latest run. Please check the Actions tab in your repository."
-  exit 1
-fi
+    if [[ -n "${RUN_DATA}" ]]; then
+        read -r RUN_ID RUN_URL <<< "${RUN_DATA}"
+    fi
+
+    if [[ -z "${RUN_ID}" ]]; then
+        ATTEMPTS=$((ATTEMPTS + 1))
+        if [[ ${ATTEMPTS} -ge ${MAX_ATTEMPTS} ]]; then
+            echo "❌ Timed out waiting for the workflow run to start. Please check the Actions tab in your repository."
+            exit 1
+        fi
+        echo "   ...not found, waiting 5s (attempt ${ATTEMPTS}/${MAX_ATTEMPTS})"
+        sleep 5
+    fi
+done
 
 echo "✅ Found run ID: ${RUN_ID}"
 echo "🌐 View on web: ${RUN_URL}"
 echo "🪵 Tailing logs..."
 
 if ! gh run watch "${RUN_ID}" --exit-status; then
-  echo
-  echo "❌ Workflow run failed. Fetching full logs..."
-  echo "🌐 View on web: ${RUN_URL}"
-  gh run view "${RUN_ID}" --log
-  exit 1
+    echo
+    echo "❌ Workflow run failed. Fetching full logs..."
+    echo "🌐 View on web: ${RUN_URL}"
+    gh run view "${RUN_ID}" --log
+    exit 1
 fi
 
 echo "✅ Workflow run completed successfully."
-

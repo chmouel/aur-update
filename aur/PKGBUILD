@@ -1,4 +1,4 @@
-pkgname=openai-codex-bin
+pkgname=openai-codex-autoup-bin
 pkgver=0.47.0
 pkgrel=1
 pkgdesc="Arch Linux package for OpenAI’s Codex CLI - Auto Updated"

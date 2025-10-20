@@ -2,7 +2,7 @@ name: AUR Auto-Update
 
 on:
   schedule:
-    - cron: "0 0 * * *"
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
@@ -38,15 +38,23 @@ jobs:
         run: |
           ./updpkg.sh
 
-      - name: Commit and push changes
+      - name: Commit and push changes to AUR
         run: |
+          # Clone the AUR repository into a temporary directory
+          git clone "ssh://aur@aur.archlinux.org/openai-codex-bin.git" /tmp/aur-repo
+          
+          # Copy the updated files from our `aur` subdirectory
+          cp -af aur/* /tmp/aur-repo/
+
+          # Navigate into the cloned repo, configure git, and commit/push if changes exist
+          cd /tmp/aur-repo
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          
           git add .
           if git diff --staged --quiet; then
-            echo "No changes to commit."
+            echo "No changes to commit to AUR."
           else
             git commit -m "Bump to ${{ steps.update.outputs.latest_version }}"
-            git remote add aur "ssh://aur@aur.archlinux.org/openai-codex-bin-2.git"
-            git push aur master
+            git push origin master
           fi
