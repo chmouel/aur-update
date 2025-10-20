@@ -13,15 +13,25 @@ gh workflow run "${WORKFLOW_NAME}"
 echo "⏱️ Waiting for the new workflow run to start..."
 sleep 5
 
-echo "🔍 Finding the latest run ID..."
-RUN_ID=$(gh run list --workflow="${WORKFLOW_NAME}" --limit=1 --json databaseId -q '.[0].databaseId')
+echo "🔍 Finding the latest run..."
+# Use --template to format the output and read to assign to variables
+read -r RUN_ID RUN_URL < <(gh run list --workflow="${WORKFLOW_NAME}" --limit=1 --json databaseId,url --template '{{range .}}{{.databaseId}}{"\t"}{{.url}}{{end}}')
 
 if [[ -z "${RUN_ID}" ]]; then
-    echo "❌ Could not find the latest run ID. Please check the Actions tab in your repository."
+    echo "❌ Could not find the latest run. Please check the Actions tab in your repository."
     exit 1
 fi
 
 echo "✅ Found run ID: ${RUN_ID}"
+echo "🌐 View on web: ${RUN_URL}"
 echo "🪵 Tailing logs..."
 
-gh run watch "${RUN_ID}" --exit-status
+if ! gh run watch "${RUN_ID}" --exit-status; then
+    echo
+    echo "❌ Workflow run failed. Fetching full logs..."
+    echo "🌐 View on web: ${RUN_URL}"
+    gh run view "${RUN_ID}" --log
+    exit 1
+fi
+
+echo "✅ Workflow run completed successfully."
