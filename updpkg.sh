@@ -12,9 +12,10 @@ pkgversion=${pkgversion#pkgver=}
 if [[ ${pkgversion} != "${latest}" ]]; then
   echo "Updating PKGBUILD from ${pkgversion} to ${latest}"
   sed -i "s/pkgver=${pkgversion}/pkgver=${latest}/" PKGBUILD
+  echo "latest_version=${latest}" >> $GITHUB_OUTPUT
 else
   echo
-  printf "\033[3;31mPKGBUILD is already up to date with version %s\033[0m\n" "${pkgversion}"
+  printf "\033[3;31mPKGBU-ILD is already up to date with version %s\033[0m\n" "${pkgversion}"
   exit 0
 fi
 

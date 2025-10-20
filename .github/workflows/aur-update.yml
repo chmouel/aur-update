@@ -8,9 +8,16 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
     steps:
+      - name: Install dependencies
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm git openssh jq base-devel pacman-contrib
+
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up SSH
         env:
@@ -22,6 +29,9 @@ jobs:
           ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
 
       - name: Run update script
+        id: update
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./updpkg.sh
 
@@ -33,7 +43,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "No changes to commit."
           else
-            git commit -m "Update AUR package"
+            git commit -m "Bump to ${{ steps.update.outputs.latest_version }}"
             git remote set-url origin "ssh://aur@aur.archlinux.org/openai-codex-bin.git"
             git push origin master
           fi
