@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 # Author: Chmouel Boudjnah <chmouel@chmouel.com>
 set -eufo pipefail
-GITHUB_TOKEN="${GITHUB_TOKEN:-$(pass show github/chmouel-token)}"
 PROJECT="${PROJECT:-openai/codex}"
 
-latest=$(curl -H "Authorization: ${GITHUB_TOKEN}" -s https://api.github.com/repos/${PROJECT}/releases | jq -r '[.[] | select(.prerelease == false and (.tag_name | contains("nightly") | not) and (.tag_name | contains("preview") | not))][0].tag_name')
+latest=$(curl -H "Authorization: token ${GITHUB_TOKEN}" -s https://api.github.com/repos/${PROJECT}/releases | jq -r '[.[] | select(.prerelease == false and (.tag_name | contains("nightly") | not) and (.tag_name | contains("preview") | not))][0].tag_name')
 latest=${latest#rust-}
 latest=${latest#v}
 pkgversion=$(grep '^pkgver=' PKGBUILD)
@@ -20,6 +19,3 @@ else
 fi
 
 updpkgsums && makepkg --printsrcinfo >.SRCINFO
-makepkg -srif
-git commit -m "Bump to ${latest}" PKGBUILD .SRCINFO
-git clean -f .
