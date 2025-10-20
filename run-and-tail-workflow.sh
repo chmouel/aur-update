@@ -19,7 +19,8 @@ MAX_ATTEMPTS=12 # 12 * 5s = 60s timeout
 while [[ -z "${RUN_ID}" ]]; do
     # Fetch the latest run's ID and URL on separate lines for robust parsing.
     # We use printf "%.0f" to format the databaseId as a whole number.
-    RUN_DATA=$(gh run list --workflow="${WORKFLOW_NAME}" --limit=1 --json databaseId,url --template '{{range .}}{{printf "%.0f" .databaseId}}{"\n"}{{.url}}{{end}}')
+    RUN_DATA=$(gh run list --workflow="${WORKFLOW_NAME}" --limit=1 --json databaseId,url --template '{{range .}}{{printf "%.0f" .databaseId}}
+{{.url}}{{end}}')
 
     if [[ -n "${RUN_DATA}" ]]; then
         # Read the first line into RUN_ID and the second into RUN_URL

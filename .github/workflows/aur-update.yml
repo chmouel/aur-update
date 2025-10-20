@@ -2,7 +2,7 @@ name: AUR Auto-Update
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: "0 0 * * *"
   workflow_dispatch:
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Mark repository as safe
-        run: git config --global --add safe.directory "/__w/openai-codex-bin/openai-codex-bin"
+        run: git config --global --add safe.directory "/__w/openai-codex-autoup-bin/openai-codex-autoup-bin"
 
       - name: Set up SSH
         env:
@@ -41,8 +41,8 @@ jobs:
       - name: Commit and push changes to AUR
         run: |
           # Clone the AUR repository into a temporary directory, specifying the SSH key and disabling strict host key checking
-          GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" git clone "ssh://aur@aur.archlinux.org/openai-codex-bin.git" /tmp/aur-repo
-          
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no" git clone "ssh://aur@aur.archlinux.org/openai-codex-autoup-bin.git" /tmp/aur-repo
+
           # Copy the updated files from our `aur` subdirectory
           cp -af aur/* /tmp/aur-repo/
 
@@ -50,7 +50,7 @@ jobs:
           cd /tmp/aur-repo
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          
+
           git add .
           if git diff --staged --quiet; then
             echo "No changes to commit to AUR."
