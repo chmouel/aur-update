@@ -17,79 +17,34 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  matrix:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    outputs:
-      packages: ${{ steps.collect.outputs.packages }}
-    steps:
-      - uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-      - id: collect
-        shell: bash
-        run: |
-          if [[ ! -f packages.json ]]; then
-            echo 'packages=[]' >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          packages=$(jq -c '[ .[] | select(.enabled // true) | { name: .name, method: .method } ]' packages.json)
-          if [[ -z "$packages" || "$packages" == "[]" ]]; then
-            echo 'packages=[]' >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          echo "packages=${packages}" >> "$GITHUB_OUTPUT"
-
   update:
-    needs: matrix
-    if: ${{ needs.matrix.outputs.packages != '[]' }}
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        package: ${{ fromJson(needs.matrix.outputs.packages) }}
-      max-parallel: 1
     container:
       image: archlinux:latest
     steps:
       - name: Install toolchain
         run: pacman -Syu --noconfirm --needed base-devel git jq curl npm
+
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           set-safe-directory: true
-      - name: Run package updater
-        id: updater
+
+      - name: Update all packages
         env:
-          PACKAGE: ${{ matrix.package.name }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./updpkg.sh --package "$PACKAGE"
-      - name: Detect changes
-        id: diff
         run: |
-          if git diff --quiet; then
-            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          ./updpkg.sh --all
+
+      - name: Commit and push changes
+        run: |
+          if ! git diff --quiet; then
+            git add -A
+            git commit -m "chore: update AUR packages"
+            git push origin HEAD
           else
-            echo 'changed=true' >> "$GITHUB_OUTPUT"
+            echo "No updates were necessary."
           fi
-      - name: Commit changes
-        if: steps.diff.outputs.changed == 'true'
-        env:
-          PACKAGE: ${{ matrix.package.name }}
-          VERSION: ${{ steps.updater.outputs.latest_version }}
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add -A
-          msg="chore(${PACKAGE}): update"
-          if [[ -n "$VERSION" ]]; then
-            msg="chore(${PACKAGE}): update to ${VERSION}"
-          fi
-          git commit -m "$msg"
-      - name: Push changes
-        if: steps.diff.outputs.changed == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git push origin HEAD
