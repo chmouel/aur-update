@@ -23,14 +23,22 @@ jobs:
       image: archlinux:latest
     steps:
       - name: Install toolchain
-        run: pacman -Syu --noconfirm --needed base-devel git jq curl npm
+        run: pacman -Syu --noconfirm --needed base-devel git jq curl npm openssh
 
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
           set-safe-directory: true
 
+      - name: Setup SSH for AUR
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AUR_SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
+
       - name: Update all packages
+        id: update
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -39,12 +47,54 @@ jobs:
 
           ./updpkg.sh --all
 
-      - name: Commit and push changes
+      - name: Commit changes to this repository
         run: |
           if ! git diff --quiet; then
             git add -A
             git commit -m "chore: update AUR packages"
             git push origin HEAD
-          else
-            echo "No updates were necessary."
           fi
+
+      - name: Push updated packages to AUR
+        env:
+          GIT_SSH_COMMAND: "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no"
+        run: |
+          # Get list of packages from packages.json
+          jq -r '.[] | select(.enabled // true) | .name' packages.json | while read package_name; do
+            package_path=$(jq -r --arg name "$package_name" '.[] | select(.name == $name) | .path' packages.json)
+
+            echo "Processing $package_name from $package_path"
+
+            # Check if there are changes in this package directory
+            if ! git diff HEAD~1 --quiet -- "$package_path" 2>/dev/null; then
+              echo "Changes detected in $package_name, pushing to AUR..."
+
+              # Clone AUR repo
+              aur_tmp="/tmp/aur-$package_name"
+              git clone "ssh://aur@aur.archlinux.org/${package_name}.git" "$aur_tmp"
+
+              # Copy updated files
+              cp -f "$package_path"/PKGBUILD "$aur_tmp/"
+              cp -f "$package_path"/.SRCINFO "$aur_tmp/"
+
+              # Commit and push to AUR
+              cd "$aur_tmp"
+              git config user.name "github-actions[bot]"
+              git config user.email "github-actions[bot]@users.noreply.github.com"
+
+              git add PKGBUILD .SRCINFO
+              if ! git diff --staged --quiet; then
+                pkgver=$(grep '^pkgver=' PKGBUILD | head -n1 | cut -d'=' -f2)
+                git commit -m "Update to $pkgver"
+                git push origin master
+                echo "✓ Pushed $package_name to AUR"
+              else
+                echo "No changes to push for $package_name"
+              fi
+
+              cd -
+              rm -rf "$aur_tmp"
+            else
+              echo "No changes in $package_name, skipping AUR push"
+            fi
+          done
