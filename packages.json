@@ -1,0 +1,17 @@
+[
+  {
+    "name": "openai-codex-autoup-bin",
+    "path": "aur/openai-codex-autoup-bin",
+    "method": "github_release",
+    "github_project": "openai/codex",
+    "github_tag_excludes": ["nightly", "preview"],
+    "version_strip_prefixes": ["rust-", "v"]
+  },
+  {
+    "name": "claude-code-acp",
+    "path": "aur/claude-code-acp",
+    "method": "npm_latest",
+    "npm_package": "@zed-industries/claude-code-acp",
+    "enabled": true
+  }
+]
