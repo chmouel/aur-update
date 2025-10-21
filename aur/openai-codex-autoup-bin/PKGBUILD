@@ -11,7 +11,7 @@ optdepends=(
   'git: for working with git repositories'
   'ripgrep: accelerated large-repo search'
 )
-keywords=('codex' 'openai' 'cli' 'ai' 'machine-learning', 'chatgpt')
+keywords=('codex' 'openai' 'cli' 'ai' 'machine-learning' 'chatgpt')
 
 source_x86_64=(
   "codex-${pkgver}-x86_64.tar.gz::https://github.com/openai/codex/releases/download/rust-v${pkgver}/codex-x86_64-unknown-linux-gnu.tar.gz"

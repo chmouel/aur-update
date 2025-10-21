@@ -5,7 +5,8 @@
     "method": "github_release",
     "github_project": "openai/codex",
     "github_tag_excludes": ["nightly", "preview"],
-    "version_strip_prefixes": ["rust-", "v"]
+    "version_strip_prefixes": ["rust-", "v"],
+    "enabled": true
   },
   {
     "name": "claude-code-acp",

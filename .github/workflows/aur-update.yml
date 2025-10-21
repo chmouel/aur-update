@@ -60,7 +60,9 @@ jobs:
         with:
           fetch-depth: 0
       - name: Install toolchain
-        run: pacman -Syu --noconfirm --needed base-devel git jq curl
+        run: pacman -Syu --noconfirm --needed base-devel git jq curl npm
+      - name: Configure git safe directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Run package updater
         id: updater
         env:
