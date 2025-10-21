@@ -1,0 +1,73 @@
+# Pre-commit hooks for AUR package repository
+# Install pre-commit: pip install pre-commit
+# Setup hooks: pre-commit install --hook-type pre-push
+# Run manually: pre-commit run --all-files --hook-stage push
+
+repos:
+  # Standard pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      # Check for files that would conflict in case-insensitive filesystems
+      - id: check-case-conflict
+      # Ensure files end with a newline
+      - id: end-of-file-fixer
+      # Trim trailing whitespace
+      - id: trailing-whitespace
+      # Check YAML syntax
+      - id: check-yaml
+        args: ['--unsafe']  # Allow custom tags in GitHub Actions
+      # Check for merge conflict markers
+      - id: check-merge-conflict
+      # Prevent committing large files
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+
+  # JSON validation
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-json
+        files: 'packages\.json$'
+        stages: [pre-push]
+
+  # Markdown linting
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.45.0
+    hooks:
+      - id: markdownlint-fix
+        args: ['--disable', 'MD013', 'MD033']  # Disable line-length and inline HTML rules
+        stages: [pre-push]
+
+  # Bash syntax validation
+  - repo: local
+    hooks:
+      - id: bash-syntax-check
+        name: Check Bash syntax
+        entry: bash -n
+        language: system
+        files: '\.sh$'
+        stages: [pre-push]
+
+      - id: pkgbuild-syntax-check
+        name: Check PKGBUILD syntax
+        entry: bash -n
+        language: system
+        files: 'PKGBUILD$'
+        stages: [pre-push]
+
+      - id: validate-packages-json
+        name: Validate packages.json structure
+        entry: bash -c 'for file in "$@"; do jq -e "if type == \"array\" then true else error(\"Root must be an array\") end" "$file" > /dev/null || exit 1; done' --
+        language: system
+        files: 'packages\.json$'
+        stages: [pre-push]
+        pass_filenames: true
+
+      - id: updpkg-script-test
+        name: Test updpkg.sh script validity
+        entry: bash -c './updpkg.sh --help > /dev/null'
+        language: system
+        files: 'updpkg\.sh$'
+        stages: [pre-push]
+        pass_filenames: false

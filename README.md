@@ -33,6 +33,32 @@ Add new packages by creating `aur/<new-package>/PKGBUILD`, adding an entry to `p
 
 Passing `GITHUB_TOKEN=<token>` improves GitHub API rate limits for packages that use `github_release`.
 
+## Development
+
+### Pre-commit Hooks
+
+This repository uses [pre-commit](https://pre-commit.com/) to validate files before pushing:
+
+```bash
+# Install pre-commit (if not already installed)
+pip install pre-commit
+
+# Install the git hooks
+pre-commit install --hook-type pre-push
+
+# Run manually to test all files
+pre-commit run --all-files --hook-stage push
+```
+
+The hooks will automatically:
+
+- Validate bash syntax for all `.sh` files and `PKGBUILD` files
+- Validate JSON syntax for `packages.json`
+- Check YAML syntax for workflow files
+- Lint and auto-fix markdown files with `markdownlint`
+- Fix trailing whitespace and end-of-file issues
+- Prevent accidentally committing large files or merge conflicts
+
 ## GitHub Actions & Testing
 
 The workflow at `.github/workflows/aur-update.yml`:
