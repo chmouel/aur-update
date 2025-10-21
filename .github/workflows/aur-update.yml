@@ -55,6 +55,7 @@ jobs:
     defaults:
       run:
         shell: bash
+        working-directory: /github/workspace
     steps:
       - uses: actions/checkout@v4
         with:
@@ -62,7 +63,7 @@ jobs:
       - name: Install toolchain
         run: pacman -Syu --noconfirm --needed base-devel git jq curl npm
       - name: Configure git safe directory
-        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+        run: git config --global --add safe.directory /github/workspace
       - name: Run package updater
         id: updater
         env:

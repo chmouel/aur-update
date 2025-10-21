@@ -16,17 +16,13 @@ repos:
       - id: trailing-whitespace
       # Check YAML syntax
       - id: check-yaml
-        args: ['--unsafe']  # Allow custom tags in GitHub Actions
+        args: ["--unsafe"] # Allow custom tags in GitHub Actions
       # Check for merge conflict markers
       - id: check-merge-conflict
       # Prevent committing large files
       - id: check-added-large-files
-        args: ['--maxkb=500']
-
-  # JSON validation
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
-    hooks:
+        args: ["--maxkb=500"]
+      # JSON validation
       - id: check-json
         files: 'packages\.json$'
         stages: [pre-push]
@@ -36,7 +32,7 @@ repos:
     rev: v0.45.0
     hooks:
       - id: markdownlint-fix
-        args: ['--disable', 'MD013', 'MD033']  # Disable line-length and inline HTML rules
+        args: ["--disable", "MD013", "MD033"] # Disable line-length and inline HTML rules
         stages: [pre-push]
 
   # Bash syntax validation
@@ -53,7 +49,7 @@ repos:
         name: Check PKGBUILD syntax
         entry: bash -n
         language: system
-        files: 'PKGBUILD$'
+        files: "PKGBUILD$"
         stages: [pre-push]
 
       - id: validate-packages-json
