@@ -116,19 +116,28 @@ fetch_github_version() {
   local releases
   releases=$(curl "${curl_args[@]}" "https://api.github.com/repos/${project}/releases")
 
+  # Check if the API returned an error
+  if ! jq -e 'type == "array"' <<< "$releases" >/dev/null 2>&1; then
+    local error_msg
+    error_msg=$(jq -r '.message // "Unknown API error"' <<< "$releases" 2>/dev/null || echo "Invalid JSON response")
+    err "[$name] GitHub API error for ${project}: ${error_msg}"
+    exit 1
+  fi
+
   local excludes_json
   excludes_json=$(jq -c '.github_tag_excludes // []' <<< "$pkg_json")
 
   local tag
   tag=$(jq -r --argjson excludes "$excludes_json" '
-    def excluded($excludes):
-      if ($excludes | length) == 0 then false
-      else any($excludes[]; (.tag_name | contains(.)))
-      end;
     [ .[]
       | select((.prerelease // false) | not)
       | select((.draft // false) | not)
-      | select(excluded($excludes) | not)
+      | . as $release
+      | select(
+          if ($excludes | length) == 0 then true
+          else ($excludes | all(. as $pattern | ($release.tag_name | contains($pattern) | not)))
+          end
+        )
     ][0].tag_name
   ' <<< "$releases")
 
@@ -151,8 +160,19 @@ fetch_npm_version() {
     exit 1
   fi
 
+  local response
+  response=$(curl -fsSL "https://registry.npmjs.org/${npm_package}/latest")
+
+  # Check if npm returned an error
+  if ! jq -e 'type == "object" and has("version")' <<< "$response" >/dev/null 2>&1; then
+    local error_msg
+    error_msg=$(jq -r '.error // "Unknown npm error"' <<< "$response" 2>/dev/null || echo "Invalid JSON response")
+    err "[$name] npm registry error for ${npm_package}: ${error_msg}"
+    exit 1
+  fi
+
   local version
-  version=$(curl -fsSL "https://registry.npmjs.org/${npm_package}/latest" | jq -r '.version')
+  version=$(jq -r '.version' <<< "$response")
   if [[ -z $version || $version == "null" ]]; then
     err "[$name] Unable to fetch npm version for ${npm_package}"
     exit 1
