@@ -60,6 +60,7 @@ jobs:
           GIT_SSH_COMMAND: "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no"
         run: |
           # Get list of packages from packages.json
+          set -x
           jq -r '.[] | select(.enabled // true) | .name' packages.json | while read package_name; do
             package_path=$(jq -r --arg name "$package_name" '.[] | select(.name == $name) | .path' packages.json)
 
