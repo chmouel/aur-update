@@ -1,8 +1,6 @@
-#!/bin/bash
-#
-# Run a GitHub Actions workflow and tail the logs of the new run.
-#
-set -euo pipefail
+#!/usr/bin/env bash
+# Author: Chmouel Boudjnah <chmouel@chmouel.com>
+set -eufo pipefail
 
 WORKFLOW_NAME="aur-update.yml"
 
