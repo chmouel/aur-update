@@ -9,6 +9,14 @@
     "enabled": true
   },
   {
+    "name": "nextmeeting",
+    "path": "aur/nextmeeting",
+    "method": "github_release",
+    "github_project": "chmouel/nextmeeting",
+    "version_strip_prefixes": ["v"],
+    "enabled": true
+  },
+  {
     "name": "claude-code-acp",
     "path": "aur/claude-code-acp",
     "method": "npm_latest",

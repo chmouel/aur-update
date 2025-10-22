@@ -1,4 +1,6 @@
-# Maintainer: Chmouel Boudjnah <chmouel@chmouel.com>
+#!/usr/bin/env bash
+# shellcheck disable=SC2034
+# Maintainer:  Chmouel Boudjnah <chmouel@chmouel.com>
 org=zed-industries
 realname=claude-code-acp
 pkgname=$realname
