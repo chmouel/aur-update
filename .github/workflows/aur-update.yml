@@ -37,15 +37,26 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan aur.archlinux.org >> ~/.ssh/known_hosts
 
+      - name: Prepare build user
+        run: |
+          if ! id aurbuild &>/dev/null; then
+            useradd --create-home --shell /bin/bash aurbuild
+          fi
+          chown -R aurbuild:aurbuild "$GITHUB_WORKSPACE"
+
       - name: Update all packages
         id: update
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config --global --add safe.directory /__w/aur-update/aur-update
+          runuser --preserve-environment -u aurbuild -- bash <<'EOF'
+          set -euo pipefail
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          cd "$GITHUB_WORKSPACE"
           ./updpkg.sh --all
+          EOF
 
       - name: Commit changes to this repository
         run: |
