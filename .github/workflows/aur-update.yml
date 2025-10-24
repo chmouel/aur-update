@@ -23,7 +23,7 @@ jobs:
       image: archlinux:latest
     steps:
       - name: Install toolchain
-        run: pacman -Syu --noconfirm --needed base-devel git jq curl npm openssh
+        run: pacman -Syu --noconfirm --needed base-devel git jq curl npm openssh pacman-contrib
 
       - uses: actions/checkout@v5
         with:
