@@ -62,22 +62,22 @@ jobs:
           ./updpkg.sh --all
           EOF
 
-      - name: Commit changes to this repository
-        run: |
-          runuser --preserve-environment -u aurbuild -- bash <<'EOF'
-          set -euo pipefail
-          export HOME=/home/aurbuild
-          cd "$GITHUB_WORKSPACE"
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet; then
-            git add -A
-            git commit -m "chore: update AUR packages"
-            git push origin HEAD
-          fi
-          EOF
-
+      # - name: Commit changes to this repository
+      #   run: |
+      #     runuser --preserve-environment -u aurbuild -- bash <<'EOF'
+      #     set -euo pipefail
+      #     export HOME=/home/aurbuild
+      #     cd "$GITHUB_WORKSPACE"
+      #     git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      #     git config --global user.name "github-actions[bot]"
+      #     git config --global user.email "github-actions[bot]@users.noreply.github.com"
+      #     if ! git diff --quiet; then
+      #       git add -A
+      #       git commit -m "chore: update AUR packages"
+      #       git push origin HEAD
+      #     fi
+      #     EOF
+      #
       - name: Push updated packages to AUR
         env:
           GIT_SSH_COMMAND: "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no"
