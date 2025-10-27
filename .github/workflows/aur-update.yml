@@ -18,6 +18,9 @@ on:
       - packages.json
       - updpkg.sh
 
+permissions:
+  contents: write
+
 concurrency:
   group: aur-update-${{ github.ref }}
   cancel-in-progress: false
