@@ -30,6 +30,11 @@ jobs:
           fetch-depth: 0
           set-safe-directory: true
 
+      - name: Prepare build user
+        run: |
+          id aurbuild &>/dev/null || useradd --create-home --shell /bin/bash aurbuild
+          chown -R aurbuild:aurbuild "$GITHUB_WORKSPACE"
+
       - name: Setup SSH for AUR
         run: |
           mkdir -p ~/.ssh
@@ -51,6 +56,8 @@ jobs:
         run: |
           runuser --preserve-environment -u aurbuild -- bash <<'EOF'
           set -euo pipefail
+          export HOME=/home/aurbuild
+          cd "$GITHUB_WORKSPACE"
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
