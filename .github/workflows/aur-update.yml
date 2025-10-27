@@ -38,9 +38,11 @@ jobs:
       - name: Setup SSH for AUR
         run: |
           install -d -m 700 /home/aurbuild/.ssh
-          echo "${{ secrets.AUR_SSH_KEY }}" > /home/aurbuild/.ssh/id_rsa
+          printf '%s\n' "${{ secrets.AUR_SSH_KEY }}" >/home/aurbuild/.ssh/id_rsa
+          tr -d '\r' </home/aurbuild/.ssh/id_rsa >/home/aurbuild/.ssh/id_rsa.tmp
+          mv /home/aurbuild/.ssh/id_rsa.tmp /home/aurbuild/.ssh/id_rsa
           chmod 600 /home/aurbuild/.ssh/id_rsa
-          ssh-keyscan aur.archlinux.org >> /home/aurbuild/.ssh/known_hosts
+          ssh-keyscan -H aur.archlinux.org >> /home/aurbuild/.ssh/known_hosts
           chown -R aurbuild:aurbuild /home/aurbuild/.ssh
 
       - name: Update all packages
