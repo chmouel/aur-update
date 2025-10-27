@@ -38,7 +38,7 @@ jobs:
       - name: Setup SSH for AUR
         run: |
           install -d -m 700 /home/aurbuild/.ssh
-          printf '%s\n' "${{ secrets.AUR_SSH_KEY }}" >/home/aurbuild/.ssh/id_rsa
+          printf '%s\n' "${{ secrets.AUR_SSH_PRIVATE_KEY }}" >/home/aurbuild/.ssh/id_rsa
           tr -d '\r' </home/aurbuild/.ssh/id_rsa >/home/aurbuild/.ssh/id_rsa.tmp
           mv /home/aurbuild/.ssh/id_rsa.tmp /home/aurbuild/.ssh/id_rsa
           chmod 600 /home/aurbuild/.ssh/id_rsa
