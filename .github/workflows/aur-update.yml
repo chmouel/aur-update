@@ -92,7 +92,7 @@ jobs:
           GIT_SSH_COMMAND: "ssh -i /home/aurbuild/.ssh/id_rsa -o StrictHostKeyChecking=no"
         run: |
           runuser --preserve-environment -u aurbuild -- bash <<'EOF'
-          set -euo pipefail
+          set -xeuo pipefail
           export HOME=/home/aurbuild
           cd "$GITHUB_WORKSPACE"
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
