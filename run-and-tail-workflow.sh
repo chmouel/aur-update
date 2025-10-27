@@ -3,9 +3,14 @@
 set -eufo pipefail
 
 WORKFLOW_NAME="aur-update.yml"
+args=()
+if [[ ${1:-} == -d ]]; then
+  args=(-f debug_enabled=true)
+  shift
+fi
 
 echo "🏃 Triggering workflow: ${WORKFLOW_NAME}"
-gh workflow run "${WORKFLOW_NAME}"
+gh workflow run "${args[@]}" "${WORKFLOW_NAME}"
 
 echo "🔍 Waiting for the new workflow run to appear..."
 
