@@ -1,0 +1,19 @@
+pkgbase = openai-codex-autoup-bin
+	pkgdesc = Arch Linux package for OpenAI’s Codex CLI - Auto Updated
+	pkgver = 0.50.0
+	pkgrel = 1
+	url = https://github.com/openai/codex
+	arch = x86_64
+	arch = aarch64
+	license = Apache
+	optdepends = git: for working with git repositories
+	optdepends = ripgrep: accelerated large-repo search
+	provides = openai-codex
+	conflicts = openai-codex
+	conflicts = openai-codex-bin
+	source_x86_64 = codex-0.50.0-x86_64.tar.gz::https://github.com/openai/codex/releases/download/rust-v0.50.0/codex-x86_64-unknown-linux-gnu.tar.gz
+	sha256sums_x86_64 = 42402329dbdceb044316a82170f68531bafcff43ecec3d8850418b2ca6693287
+	source_aarch64 = codex-0.50.0-aarch64.tar.gz::https://github.com/openai/codex/releases/download/rust-v0.50.0/codex-aarch64-unknown-linux-gnu.tar.gz
+	sha256sums_aarch64 = 14461973a398b3697dcb3568f85744fe56de014b40a23a3f07916cfff6224106
+
+pkgname = openai-codex-autoup-bin
