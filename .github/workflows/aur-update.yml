@@ -42,6 +42,7 @@ jobs:
           tr -d '\r' </home/aurbuild/.ssh/id_rsa >/home/aurbuild/.ssh/id_rsa.tmp
           mv /home/aurbuild/.ssh/id_rsa.tmp /home/aurbuild/.ssh/id_rsa
           chmod 600 /home/aurbuild/.ssh/id_rsa
+          chmod 600 /home/aurbuild/.ssh/id_rsa
           ssh-keyscan -H aur.archlinux.org >> /home/aurbuild/.ssh/known_hosts
           chown -R aurbuild:aurbuild /home/aurbuild/.ssh
 
@@ -80,9 +81,16 @@ jobs:
       #     fi
       #     EOF
       #
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
+        with:
+          detached: true
+          limit-access-to-actor: true
+
       - name: Push updated packages to AUR
         env:
-          GIT_SSH_COMMAND: "ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no"
+          GIT_SSH_COMMAND: "ssh -i /home/aurbuild/.ssh/id_rsa -o StrictHostKeyChecking=no"
         run: |
           runuser --preserve-environment -u aurbuild -- bash <<'EOF'
           set -euo pipefail
