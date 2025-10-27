@@ -71,22 +71,19 @@ jobs:
           ./updpkg.sh --all
           EOF
 
-      # - name: Commit changes to this repository
-      #   run: |
-      #     runuser --preserve-environment -u aurbuild -- bash <<'EOF'
-      #     set -euo pipefail
-      #     export HOME=/home/aurbuild
-      #     cd "$GITHUB_WORKSPACE"
-      #     git config --global --add safe.directory "$GITHUB_WORKSPACE"
-      #     git config --global user.name "github-actions[bot]"
-      #     git config --global user.email "github-actions[bot]@users.noreply.github.com"
-      #     if ! git diff --quiet; then
-      #       git add -A
-      #       git commit -m "chore: update AUR packages"
-      #       git push origin HEAD
-      #     fi
-      #     EOF
-      #
+      - name: Commit changes to this repository
+        run: |
+          set -xeuo pipefail
+          cd "$GITHUB_WORKSPACE"
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          if ! git diff --quiet; then
+            git add -A
+            git commit -m "chore: update AUR packages"
+            git push origin HEAD
+          fi
+
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.debug_enabled }}
