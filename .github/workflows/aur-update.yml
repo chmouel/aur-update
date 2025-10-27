@@ -54,6 +54,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+            touch "$GITHUB_OUTPUT"
+            chown aurbuild:aurbuild "$GITHUB_OUTPUT"
+          fi
           runuser --preserve-environment -u aurbuild -- bash <<'EOF'
           set -euo pipefail
           export HOME=/home/aurbuild
