@@ -1,5 +1,14 @@
 [
   {
+    "name": "gemini-cli-autoup",
+    "path": "aur/gemini-cli-autoup",
+    "method": "github_release",
+    "github_project": "google-gemini/gemini-cli",
+    "github_tag_excludes": ["nightly", "preview"],
+    "version_strip_prefixes": ["v"],
+    "enabled": true
+  },
+  {
     "name": "openai-codex-autoup-bin",
     "path": "aur/openai-codex-autoup-bin",
     "method": "github_release",
