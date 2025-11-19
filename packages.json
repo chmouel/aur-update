@@ -26,6 +26,14 @@
     "enabled": true
   },
   {
+    "name": "tkn-pac",
+    "path": "aur/tkn-pac",
+    "method": "github_release",
+    "github_project": "openshift-pipelines/pipelines-as-code",
+    "version_strip_prefixes": ["v"],
+    "enabled": true
+  },
+  {
     "name": "claude-code-acp",
     "path": "aur/claude-code-acp",
     "method": "npm_latest",
