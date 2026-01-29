@@ -30,5 +30,12 @@
     "method": "npm_latest",
     "npm_package": "@zed-industries/claude-code-acp",
     "enabled": true
+  },
+  {
+    "name": "tmux-fingers",
+    "path": "aur/tmux-fingers",
+    "method": "github_release",
+    "github_project": "Morantron/tmux-fingers",
+    "enabled": true
   }
 ]
