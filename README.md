@@ -2,7 +2,7 @@
 
 This repository hosts multiple Arch User Repository (AUR) packages and keeps them up to date automatically.
 
-- Packaging files live under `aur/<package-name>/` (for example `aur/openai-codex-autoup-bin/PKGBUILD`).
+- Packaging files live under `aur/<package-name>/` (for example `aur/openai-codex-bin/PKGBUILD`).
 - Update rules are declared in `packages.json` so that each package can opt into the correct update method (GitHub release or npm registry).
 - `updpkg.sh` reads that configuration, bumps `pkgver`, regenerates `.SRCINFO`, and prints a short summary.
 
@@ -25,7 +25,7 @@ Add new packages by creating `aur/<new-package>/PKGBUILD`, adding an entry to `p
 
 ```bash
 # Update the GitHub-based package locally (requires `jq`, `curl`, `updpkgsums`, `makepkg`).
-./updpkg.sh --package openai-codex-autoup-bin
+./updpkg.sh --package openai-codex-bin
 
 # Update every enabled package defined in packages.json.
 ./updpkg.sh --all

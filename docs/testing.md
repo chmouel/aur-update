@@ -19,7 +19,7 @@ git clone <this-repo-url> aur-update-test
 cd aur-update-test
 ```
 
-## 3. Test a GitHub-Based Package (`openai-codex-autoup-bin`)
+## 3. Test a GitHub-Based Package (`openai-codex-bin`)
 
 1. Confirm the current upstream version:
 
@@ -30,13 +30,13 @@ cd aur-update-test
 2. Run the updater for the package:
 
    ```bash
-   GITHUB_TOKEN=<token> ./updpkg.sh --package openai-codex-autoup-bin
+   GITHUB_TOKEN=<token> ./updpkg.sh --package openai-codex-bin
    ```
 
 3. Inspect results:
-   - Verify `aur/openai-codex-autoup-bin/PKGBUILD` has the new `pkgver`.
+   - Verify `aur/openai-codex-bin/PKGBUILD` has the new `pkgver`.
    - Check `.SRCINFO` was regenerated (`git diff` should show updated checksum/version).
-   - If no update was needed, the script will print `[openai-codex-autoup-bin] PKGBUILD already up to date`.
+   - If no update was needed, the script will print `[openai-codex-bin] PKGBUILD already up to date`.
 
 ## 4. Test an npm-Based Package (`claude-code-acp`)
 
