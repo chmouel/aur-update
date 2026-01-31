@@ -1,7 +1,7 @@
 [
   {
-    "name": "openai-codex-autoup-bin",
-    "path": "aur/openai-codex-autoup-bin",
+    "name": "openai-codex-bin",
+    "path": "aur/openai-codex-bin",
     "method": "github_release",
     "github_project": "openai/codex",
     "github_tag_excludes": ["nightly", "preview"],
