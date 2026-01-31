@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034
 # Maintainer:  Chmouel Boudjnah <chmouel@chmouel.com>
-pkgname=openai-codex-autoup-bin
+pkgname=openai-codex-bin
 pkgver=0.92.0
-pkgrel=1
+pkgrel=2
 pkgdesc="Arch Linux package for OpenAI’s Codex CLI - Auto Updated"
 arch=('x86_64' 'aarch64')
 url="https://github.com/openai/codex"
 license=('Apache')
 provides=('openai-codex')
-conflicts=('openai-codex' 'openai-codex-bin')
+conflicts=('openai-codex' 'openai-codex-autoup-bin')
+replaces=('openai-codex-autoup-bin')
 optdepends=(
   'git: for working with git repositories'
   'ripgrep: accelerated large-repo search'
