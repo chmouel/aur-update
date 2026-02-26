@@ -50,7 +50,7 @@ JOB_ID=$(gh run view ${RUN_ID} --json jobs --jq '.["jobs"][0].databaseId')
 RUN_JOB_ID=${RUN_URL}/job/${JOB_ID}
 echo "✅ Found run ID: ${RUN_ID}"
 echo "🌐 View on web: ${RUN_JOB_ID}"
-gh run view -j ${JOB_ID} -w "${RUN_ID}"
+gh run view -j ${JOB_ID}
 echo "🪵 Tailing logs..."
 
 if ! gh run watch "${RUN_ID}" --exit-status; then
