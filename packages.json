@@ -1,5 +1,13 @@
 [
   {
+    "name": "kubectl-neat",
+    "path": "aur/kubectl-neat",
+    "method": "github_release",
+    "github_project": "itaysk/kubectl-neat",
+    "version_strip_prefixes": ["v"],
+    "enabled": true
+  },
+  {
     "name": "openai-codex-bin",
     "path": "aur/openai-codex-bin",
     "method": "github_release",
