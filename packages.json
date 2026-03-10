@@ -37,7 +37,7 @@
     "path": "aur/claude-code-acp",
     "method": "npm_latest",
     "npm_package": "@zed-industries/claude-code-acp",
-    "enabled": true
+    "enabled": false
   },
   {
     "name": "tmux-fingers",
