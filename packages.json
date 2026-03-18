@@ -33,11 +33,11 @@
     "enabled": true
   },
   {
-    "name": "claude-code-acp",
-    "path": "aur/claude-code-acp",
+    "name": "claude-agent-acp",
+    "path": "aur/claude-agent-acp",
     "method": "npm_latest",
-    "npm_package": "@zed-industries/claude-code-acp",
-    "enabled": false
+    "npm_package": "@zed-industries/claude-agent-acp",
+    "enabled": true
   },
   {
     "name": "tmux-fingers",
