@@ -36,7 +36,7 @@
     "name": "claude-agent-acp",
     "path": "aur/claude-agent-acp",
     "method": "npm_latest",
-    "npm_package": "@zed-industries/claude-agent-acp",
+    "npm_package": "@agentclientprotocol/claude-agent-acp",
     "enabled": true
   },
   {
