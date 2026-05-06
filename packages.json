@@ -45,5 +45,13 @@
     "method": "github_release",
     "github_project": "Morantron/tmux-fingers",
     "enabled": true
+  },
+  {
+    "name": "shmooz",
+    "path": "aur/shmooz",
+    "method": "github_release",
+    "github_project": "chmouel/shmooz",
+    "version_strip_prefixes": ["v"],
+    "enabled": true
   }
 ]
