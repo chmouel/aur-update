@@ -50,7 +50,7 @@ JOB_ID=$(gh run view ${RUN_ID} --json jobs --jq '.["jobs"][0].databaseId')
 RUN_JOB_ID=${RUN_URL}/job/${JOB_ID}
 echo "✅ Found run ID: ${RUN_ID}"
 echo "🌐 View on web: ${RUN_JOB_ID}"
-gh run view -j ${JOB_ID}
+gh run view -j "${JOB_ID}"
 echo "🪵 Tailing logs..."
 
 if ! gh run watch "${RUN_ID}" --exit-status; then
@@ -58,11 +58,11 @@ if ! gh run watch "${RUN_ID}" --exit-status; then
   printf '\e]99;;❌ Workflow %s Failed\a' ${WORKFLOW_NAME%%.yml}
   echo "❌ Workflow run failed. Fetching full logs..."
   echo "🌐 View on web: ${RUN_URL}"
-  if ! gh run view "${RUN_ID}" -j ${JOB_ID} --log-failed; then
+  if ! gh run view "${RUN_ID}" -j "${JOB_ID}" --log-failed; then
     :
   fi
   echo "Run the following command to see the full logs:"
-  echo "gh run view ${RUN_ID} -j ${JOB_ID} --log"
+  echo "gh run view ${RUN_ID} -j \"${JOB_ID}\" --log"
   exit 1
 else
   printf '\e]99;;✅ Workflow %s Succeeded\a' ${WORKFLOW_NAME%%.yml}
