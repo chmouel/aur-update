@@ -53,5 +53,12 @@
     "github_project": "chmouel/shmooz",
     "version_strip_prefixes": ["v"],
     "enabled": true
+  },
+  {
+    "name": "batzconverter",
+    "path": "aur/batzconverter",
+    "method": "github_release",
+    "github_project": "chmouel/batzconverter",
+    "enabled": true
   }
 ]
