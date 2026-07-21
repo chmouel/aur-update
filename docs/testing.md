@@ -34,7 +34,7 @@ cd aur-update-test
    ```
 
 3. Inspect results:
-   - Verify `aur/openai-codex-bin/PKGBUILD` has the new `pkgver`.
+   - Verify `aur/openai-codex-bin/PKGBUILD` has the new `pkgver` and `pkgrel=1`.
    - Check `.SRCINFO` was regenerated (`git diff` should show updated checksum/version).
    - If no update was needed, the script will print `[openai-codex-bin] PKGBUILD already up to date`.
 
@@ -48,7 +48,7 @@ cd aur-update-test
    ```
 
 3. Inspect results:
-   - Confirm `pkgver` was changed to the latest npm version.
+   - Confirm `pkgver` was changed to the latest npm version and `pkgrel` was reset to `1`.
    - `aur/claude-code-acp/.SRCINFO` should reflect the new tarball URL and checksum.
 
 ### Offline / Air-Gapped Testing

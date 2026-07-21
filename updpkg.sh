@@ -238,7 +238,10 @@ update_package() {
   fi
 
   printf '[%s] Updating PKGBUILD from %s to %s\n' "$name" "$current_version" "$latest_version"
-  sed -i -E "s/^pkgver=.*/pkgver=${latest_version}/" "$pkgbuild_path"
+  sed -i -E \
+    -e "s/^pkgver=.*/pkgver=${latest_version}/" \
+    -e 's/^pkgrel=.*/pkgrel=1/' \
+    "$pkgbuild_path"
 
   (cd "$path" && updpkgsums && makepkg --printsrcinfo > .SRCINFO)
 
