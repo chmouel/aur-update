@@ -1,4 +1,4 @@
-pkgbase = batzconverter
+pkgbase = batz-converter
 	pkgdesc = Batman Timezone Converter - show times across multiple timezones
 	pkgver = 4.0.0
 	pkgrel = 1
@@ -16,4 +16,4 @@ pkgbase = batzconverter
 	source = batzconverter-4.0.0.tar.gz::https://github.com/chmouel/batzconverter/archive/refs/tags/v4.0.0.tar.gz
 	sha256sums = 64656ebeb658add7fe58c34c4c7ac271c3093a962c9ca2ad3694c7228c95df1f
 
-pkgname = batzconverter
+pkgname = batz-converter
