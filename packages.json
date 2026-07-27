@@ -55,8 +55,8 @@
     "enabled": true
   },
   {
-    "name": "batzconverter",
-    "path": "aur/batzconverter",
+    "name": "batz-converter",
+    "path": "aur/batz-converter",
     "method": "github_release",
     "github_project": "chmouel/batzconverter",
     "enabled": true
