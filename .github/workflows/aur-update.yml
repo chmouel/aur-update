@@ -84,7 +84,17 @@ jobs:
           if ! git diff --quiet; then
             git add -A
             git commit -m "chore: update AUR packages"
-            git push origin HEAD
+            for attempt in 1 2 3 4 5; do
+              if git push origin HEAD; then
+                break
+              fi
+              if [[ $attempt -eq 5 ]]; then
+                echo "::error::Failed to push after $attempt attempts" >&2
+                exit 1
+              fi
+              sleep $((attempt * 5))
+              git pull --rebase origin "${GITHUB_REF#refs/heads/}"
+            done
           fi
 
       - name: Setup tmate session
