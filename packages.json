@@ -59,6 +59,7 @@
     "path": "aur/batz-converter",
     "method": "github_release",
     "github_project": "chmouel/batzconverter",
+    "version_strip_prefixes": ["v"],
     "enabled": true
   }
 ]
