@@ -37,7 +37,7 @@
     "path": "aur/claude-agent-acp",
     "method": "npm_latest",
     "npm_package": "@agentclientprotocol/claude-agent-acp",
-    "enabled": true
+    "enabled": false
   },
   {
     "name": "tmux-fingers",
