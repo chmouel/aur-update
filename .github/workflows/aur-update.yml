@@ -10,6 +10,11 @@ on:
         description: "Run the build with tmate debugging enabled (https://github.com/marketplace/actions/debugging-with-tmate)"
         required: false
         default: false
+      force_push:
+        type: boolean
+        description: "Push to AUR even when there are no changes (regenerates files and pushes an empty commit if needed)"
+        required: false
+        default: false
   push:
     branches:
       - main
@@ -59,6 +64,7 @@ jobs:
         id: update
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORCE_PUSH: ${{ github.event.inputs.force_push }}
         run: |
           if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
             touch "$GITHUB_OUTPUT"
@@ -71,7 +77,9 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          ./updpkg.sh --all
+          force_args=()
+          [[ "${FORCE_PUSH:-false}" == "true" ]] && force_args+=(--force)
+          ./updpkg.sh --all "${force_args[@]}"
           EOF
 
       - name: Commit changes to this repository
@@ -107,6 +115,7 @@ jobs:
       - name: Push updated packages to AUR
         env:
           GIT_SSH_COMMAND: "ssh -i /home/aurbuild/.ssh/id_rsa -o StrictHostKeyChecking=no"
+          FORCE_PUSH: ${{ github.event.inputs.force_push }}
         run: |
           runuser --preserve-environment -u aurbuild -- bash <<'EOF'
           set -xeuo pipefail
@@ -118,8 +127,8 @@ jobs:
 
             echo "Processing $package_name from $package_path"
 
-            if ! git diff HEAD~1 --quiet -- "$package_path" 2>/dev/null; then
-              echo "Changes detected in $package_name, pushing to AUR..."
+            if [[ "${FORCE_PUSH:-false}" == "true" ]] || ! git diff HEAD~1 --quiet -- "$package_path" 2>/dev/null; then
+              echo "Pushing $package_name to AUR..."
 
               aur_tmp="/tmp/aur-$package_name"
               git clone "ssh://aur@aur.archlinux.org/${package_name}.git" "$aur_tmp"
@@ -132,11 +141,15 @@ jobs:
               git config user.email "github-actions[bot]@users.noreply.github.com"
 
               git add PKGBUILD .SRCINFO
+              pkgver=$(grep '^pkgver=' PKGBUILD | head -n1 | cut -d'=' -f2)
               if ! git diff --staged --quiet; then
-                pkgver=$(grep '^pkgver=' PKGBUILD | head -n1 | cut -d'=' -f2)
                 git commit -m "Update to $pkgver"
                 git push origin master
                 echo "✓ Pushed $package_name to AUR"
+              elif [[ "${FORCE_PUSH:-false}" == "true" ]]; then
+                git commit --allow-empty -m "Update to $pkgver"
+                git push origin master
+                echo "✓ Force-pushed $package_name to AUR (no changes)"
               else
                 echo "No changes to push for $package_name"
               fi

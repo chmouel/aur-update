@@ -29,6 +29,12 @@ Add new packages by creating `aur/<new-package>/PKGBUILD`, adding an entry to `p
 
 # Update every enabled package defined in packages.json.
 ./updpkg.sh --all
+
+# Force regeneration of files even when already up to date.
+./updpkg.sh --all --force
+
+# Regenerate and push to AUR even when there are no changes.
+./updpkg.sh --all --push
 ```
 
 Passing `GITHUB_TOKEN=<token>` improves GitHub API rate limits for packages that use `github_release`.

@@ -5,13 +5,17 @@ set -euo pipefail
 
 CONFIG_FILE=${CONFIG_FILE:-packages.json}
 PACKAGE_FILTER=""
+FORCE=false
+PUSH=false
 
 usage() {
   cat <<'USAGE'
-Usage: updpkg.sh [--package NAME] [--all]
+Usage: updpkg.sh [--package NAME] [--all] [--force] [--push]
 
   --package NAME   Update only the package identified by NAME
   --all            Update all enabled packages (default)
+  --force          Regenerate files even when already up to date
+  --push           Push updated packages to AUR (implies --force)
   -h, --help       Show this help message
 
 Environment variables:
@@ -28,6 +32,15 @@ while [[ $# -gt 0 ]]; do
       ;;
     --all)
       PACKAGE_FILTER=""
+      shift
+      ;;
+    --force)
+      FORCE=true
+      shift
+      ;;
+    --push)
+      PUSH=true
+      FORCE=true
       shift
       ;;
     -h|--help)
@@ -180,7 +193,37 @@ fetch_npm_version() {
   printf '%s\n' "$version"
 }
 
+push_to_aur() {
+  local name=$1 path=$2
+  local pkgbuild_path="$path/PKGBUILD"
+  local aur_tmp pkgver
+
+  aur_tmp=$(mktemp -d "/tmp/aur-${name}.XXXXXX")
+  git clone "ssh://aur@aur.archlinux.org/${name}.git" "$aur_tmp"
+
+  cp -f "$pkgbuild_path" "$aur_tmp/"
+  cp -f "$path/.SRCINFO" "$aur_tmp/"
+
+  pkgver=$(grep '^pkgver=' "$aur_tmp/PKGBUILD" | head -n1 | cut -d'=' -f2-)
+
+  (
+    cd "$aur_tmp"
+    git add PKGBUILD .SRCINFO
+    if git diff --staged --quiet; then
+      git commit --allow-empty -m "Update to ${pkgver}"
+      printf '[%s] Force-pushed to AUR (no changes)\n' "$name"
+    else
+      git commit -m "Update to ${pkgver}"
+      printf '[%s] Pushed to AUR\n' "$name"
+    fi
+    git push origin master
+  )
+
+  rm -rf "$aur_tmp"
+}
+
 LATEST_VERSION=""
+PACKAGE_PATH=""
 update_package() {
   local pkg_json=$1
   local name path method pkgbuild_path current_version latest_version
@@ -211,6 +254,7 @@ update_package() {
 
   pkgbuild_path="$path/PKGBUILD"
   require_file "$pkgbuild_path"
+  PACKAGE_PATH="$path"
 
   current_version=$(grep '^pkgver=' "$pkgbuild_path" | head -n 1 | cut -d'=' -f2-)
   if [[ -z $current_version ]]; then
@@ -232,16 +276,21 @@ update_package() {
   esac
 
   if [[ $current_version == "$latest_version" ]]; then
-    printf '[%s] PKGBUILD already up to date (%s)\n' "$name" "$current_version"
-    LATEST_VERSION=""
-    return 0
+    if [[ $FORCE != true ]]; then
+      printf '[%s] PKGBUILD already up to date (%s)\n' "$name" "$current_version"
+      LATEST_VERSION=""
+      return 0
+    fi
+    printf '[%s] PKGBUILD already up to date (%s), forcing regeneration\n' "$name" "$current_version"
+  else
+    printf '[%s] Updating PKGBUILD from %s to %s\n' "$name" "$current_version" "$latest_version"
   fi
 
-  printf '[%s] Updating PKGBUILD from %s to %s\n' "$name" "$current_version" "$latest_version"
-  sed -i -E \
-    -e "s/^pkgver=.*/pkgver=${latest_version}/" \
-    -e 's/^pkgrel=.*/pkgrel=1/' \
-    "$pkgbuild_path"
+  local sed_args=(-E -e "s/^pkgver=.*/pkgver=${latest_version}/")
+  if [[ $current_version != "$latest_version" ]]; then
+    sed_args+=(-e 's/^pkgrel=.*/pkgrel=1/')
+  fi
+  sed -i "${sed_args[@]}" "$pkgbuild_path"
 
   (cd "$path" && updpkgsums && makepkg --printsrcinfo > .SRCINFO)
 
@@ -258,9 +307,13 @@ update_package() {
 updated_packages=()
 for pkg_json in "${PACKAGE_ENTRIES[@]}"; do
   LATEST_VERSION=""
+  PACKAGE_PATH=""
   update_package "$pkg_json"
   if [[ -n $LATEST_VERSION ]]; then
     updated_packages+=("$(jq -r '.name' <<< "$pkg_json"):$LATEST_VERSION")
+    if [[ $PUSH == true ]]; then
+      push_to_aur "$(jq -r '.name' <<< "$pkg_json")" "$PACKAGE_PATH"
+    fi
   fi
 done
 
