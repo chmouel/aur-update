@@ -25,6 +25,14 @@
     "enabled": true
   },
   {
+    "name": "herdr-gpui",
+    "path": "aur/herdr-gpui",
+    "method": "github_release",
+    "github_project": "penso/herdr-gpui",
+    "version_strip_prefixes": ["v"],
+    "enabled": true
+  },
+  {
     "name": "tkn-pac",
     "path": "aur/tkn-pac",
     "method": "github_release",
