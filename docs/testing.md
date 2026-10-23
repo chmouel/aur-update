@@ -6,7 +6,7 @@ This guide shows how to exercise the automation for both GitHub-based and npm-ba
 
 - An Arch Linux environment (local, VM, or container). The GitHub workflow uses `archlinux:latest`.
 - Tools installed: `base-devel`, `git`, `jq`, `curl`, `npm`, `updpkgsums`, `makepkg`.
-- Optional: `GITHUB_TOKEN` with `repo` scope to avoid GitHub API rate limits when testing GitHub releases.
+- A GitHub token for packages that use GitHub releases (GraphQL API). Set `GH_TOKEN` or `GITHUB_TOKEN`, or be logged in with `gh`.
 
 ## 2. Prepare a Clean Workspace
 
@@ -24,7 +24,7 @@ cd aur-update-test
 1. Run the updater for the package:
 
    ```bash
-   GITHUB_TOKEN=<token> ./updpkg.sh --package openai-codex-bin
+   GH_TOKEN=<token> ./updpkg.sh --package openai-codex-bin
    ```
 
 2. Inspect results:
@@ -69,7 +69,7 @@ Use the tarball name to edit `PKGBUILD` manually, set `pkgver` to match the tarb
 Execute all enabled packages in one go:
 
 ```bash
-GITHUB_TOKEN=<token> ./updpkg.sh --all
+GH_TOKEN=<token> ./updpkg.sh --all
 ```
 
 The script prints a summary of which packages were updated. Check `git status` and `git diff` for changes.

@@ -37,4 +37,4 @@ Add new packages by creating `aur/<new-package>/PKGBUILD`, adding an entry to `p
 ./updpkg.sh --all --push
 ```
 
-Passing `GITHUB_TOKEN=<token>` improves GitHub API rate limits for packages that use `github_release`.
+Packages that use `github_release` query the GitHub GraphQL API, which requires a token. The updater reads `GH_TOKEN` or `GITHUB_TOKEN` and falls back to `gh auth token`. In CI, it uses the `GH_TOKEN` repository secret when set.

@@ -63,7 +63,7 @@ jobs:
       - name: Update all packages
         id: update
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN || secrets.GITHUB_TOKEN }}
           FORCE_PUSH: ${{ github.event.inputs.force_push }}
         run: |
           if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
@@ -83,13 +83,16 @@ jobs:
           EOF
 
       - name: Commit changes to this repository
+        id: commit
         run: |
           set -xeuo pipefail
           cd "$GITHUB_WORKSPACE"
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          if ! git diff --quiet; then
+          if git diff --quiet; then
+            echo "committed=false" >> "$GITHUB_OUTPUT"
+          else
             git add -A
             git commit -m "chore: update AUR packages"
             for attempt in 1 2 3 4 5; do
@@ -103,6 +106,7 @@ jobs:
               sleep $((attempt * 5))
               git pull --rebase origin "${GITHUB_REF#refs/heads/}"
             done
+            echo "committed=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Setup tmate session
@@ -113,6 +117,9 @@ jobs:
           limit-access-to-actor: true
 
       - name: Push updated packages to AUR
+        # Without a commit from this run, HEAD~1 diffs a previous run's changes
+        # whose gitignored .SRCINFO files are not in this checkout.
+        if: ${{ steps.commit.outputs.committed == 'true' || github.event.inputs.force_push == 'true' }}
         env:
           GIT_SSH_COMMAND: "ssh -i /home/aurbuild/.ssh/id_rsa -o StrictHostKeyChecking=no"
           FORCE_PUSH: ${{ github.event.inputs.force_push }}

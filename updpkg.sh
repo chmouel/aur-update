@@ -121,10 +121,16 @@ fetch_github_version() {
     exit 1
   fi
 
-  local curl_args=(-fsSL)
-  if [[ -n ${GITHUB_TOKEN:-} ]]; then
-    curl_args+=(-H "Authorization: token ${GITHUB_TOKEN}")
+  local token=${GH_TOKEN:-${GITHUB_TOKEN:-}}
+  if [[ -z $token ]] && command -v gh >/dev/null 2>&1; then
+    token=$(gh auth token 2>/dev/null || true)
   fi
+  if [[ -z $token ]]; then
+    err "[$name] GH_TOKEN/GITHUB_TOKEN is not set and 'gh auth token' is unavailable; the GitHub GraphQL API requires a token"
+    exit 1
+  fi
+
+  local owner=${project%%/*} repo=${project#*/}
 
   local excludes_json
   excludes_json=$(jq -c '.github_tag_excludes // []' <<< "$pkg_json")
@@ -132,36 +138,49 @@ fetch_github_version() {
   local -a prefixes=() versions=()
   mapfile -t prefixes < <(jq -r '.version_strip_prefixes[]?' <<< "$pkg_json")
 
-  local release_page page=1 page_size=100 page_count tag latest_version
-  while true; do
-    release_page=$(curl "${curl_args[@]}" "https://api.github.com/repos/${project}/releases?per_page=${page_size}&page=${page}")
+  # GraphQL returns only the fields we need; REST /releases pages include full
+  # asset lists and time out on repositories with many releases.
+  local query='query($owner: String!, $repo: String!, $cursor: String) {
+    repository(owner: $owner, name: $repo) {
+      releases(first: 100, after: $cursor) {
+        pageInfo { hasNextPage endCursor }
+        nodes { tagName isPrerelease isDraft }
+      }
+    }
+  }'
 
-    if ! jq -e 'type == "array"' <<< "$release_page" >/dev/null 2>&1; then
+  local cursor=null response releases tag latest_version
+  while true; do
+    response=$(jq -n --arg query "$query" --arg owner "$owner" --arg repo "$repo" --argjson cursor "$cursor" \
+        '{query: $query, variables: {owner: $owner, repo: $repo, cursor: $cursor}}' |
+      curl -fsSL --retry 3 --retry-all-errors \
+        -H "Authorization: bearer ${token}" -H "Content-Type: application/json" \
+        --data-binary @- https://api.github.com/graphql)
+
+    releases=$(jq -c '.data.repository.releases // empty' <<< "$response" 2>/dev/null || true)
+    if [[ -z $releases ]]; then
       local error_msg
-      error_msg=$(jq -r '.message // "Unknown API error"' <<< "$release_page" 2>/dev/null || echo "Invalid JSON response")
+      error_msg=$(jq -r '[.errors[]?.message] | join("; ") | if . == "" then "Unknown API error" else . end' <<< "$response" 2>/dev/null || echo "Invalid JSON response")
       err "[$name] GitHub API error for ${project}: ${error_msg}"
       exit 1
     fi
 
-    page_count=$(jq 'length' <<< "$release_page")
     while IFS= read -r tag; do
-      versions+=("$(strip_prefixes "$tag" "${prefixes[@]}")")
+      tag=$(strip_prefixes "$tag" "${prefixes[@]}")
+      # Skip other tag families sharing the repo (e.g. codex's python-v*).
+      [[ $tag =~ ^[0-9] ]] && versions+=("$tag")
     done < <(jq -r --argjson excludes "$excludes_json" '
-      .[]
-      | select((.prerelease // false) | not)
-      | select((.draft // false) | not)
-      | select(.tag_name | type == "string")
-      | . as $release
-      | select(
-          if ($excludes | length) == 0 then true
-          else ($excludes | all(. as $pattern | ($release.tag_name | contains($pattern) | not)))
-          end
-        )
-      | .tag_name
-    ' <<< "$release_page")
+      .nodes[]
+      | select(.isPrerelease | not)
+      | select(.isDraft | not)
+      | select(.tagName | type == "string")
+      | .tagName as $tag
+      | select($excludes | all(. as $pattern | $tag | contains($pattern) | not))
+      | $tag
+    ' <<< "$releases")
 
-    [[ $page_count -lt $page_size ]] && break
-    page=$((page + 1))
+    [[ $(jq -r '.pageInfo.hasNextPage' <<< "$releases") == true ]] || break
+    cursor=$(jq -c '.pageInfo.endCursor' <<< "$releases")
   done
 
   latest_version=$(printf '%s\n' "${versions[@]}" | sort -V | tail -n 1)
