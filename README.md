@@ -13,7 +13,7 @@ Each object in `packages.json` represents one package:
 - `name` – identifier used in logs and in the GitHub Actions matrix.
 - `path` – directory that contains the package’s `PKGBUILD` (relative paths are allowed).
 - `method` – how to determine the latest version. Supported values:
-  - `github_release`: track the latest non-prerelease GitHub release.
+  - `github_release`: track the highest version tag among non-draft, non-prerelease GitHub releases. Selection does not depend on release publication order or GitHub's "Latest" marker.
   - `npm_latest`: track the latest version on the npm registry (this folds in the bash snippet from the question above).
 - `github_project`, `github_tag_excludes`, `version_strip_prefixes` – optional fields used only by the GitHub release method.
 - `npm_package` – required when `method` is `npm_latest`.

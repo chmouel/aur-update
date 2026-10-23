@@ -21,22 +21,22 @@ cd aur-update-test
 
 ## 3. Test a GitHub-Based Package (`openai-codex-bin`)
 
-1. Confirm the current upstream version:
-
-   ```bash
-   GH_TOKEN=<token> curl -fsSL https://api.github.com/repos/openai/codex/releases | jq '.[0].tag_name'
-   ```
-
-2. Run the updater for the package:
+1. Run the updater for the package:
 
    ```bash
    GITHUB_TOKEN=<token> ./updpkg.sh --package openai-codex-bin
    ```
 
-3. Inspect results:
-   - Verify `aur/openai-codex-bin/PKGBUILD` has the new `pkgver` and `pkgrel=1`.
+2. Inspect results:
+   - Verify `aur/openai-codex-bin/PKGBUILD` has the highest eligible release version and `pkgrel=1`. The first release in the API response may have a lower version.
    - Check `.SRCINFO` was regenerated (`git diff` should show updated checksum/version).
    - If no update was needed, the script will print `[openai-codex-bin] PKGBUILD already up to date`.
+
+Run the release ordering and pagination regression test with:
+
+```bash
+bash tests/test_release_selection.sh
+```
 
 ## 4. Test an npm-Based Package (`claude-code-acp`)
 

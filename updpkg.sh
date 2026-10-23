@@ -126,41 +126,52 @@ fetch_github_version() {
     curl_args+=(-H "Authorization: token ${GITHUB_TOKEN}")
   fi
 
-  local releases
-  releases=$(curl "${curl_args[@]}" "https://api.github.com/repos/${project}/releases")
-
-  # Check if the API returned an error
-  if ! jq -e 'type == "array"' <<< "$releases" >/dev/null 2>&1; then
-    local error_msg
-    error_msg=$(jq -r '.message // "Unknown API error"' <<< "$releases" 2>/dev/null || echo "Invalid JSON response")
-    err "[$name] GitHub API error for ${project}: ${error_msg}"
-    exit 1
-  fi
-
   local excludes_json
   excludes_json=$(jq -c '.github_tag_excludes // []' <<< "$pkg_json")
 
-  local tag
-  tag=$(jq -r --argjson excludes "$excludes_json" '
-    [ .[]
+  local -a prefixes=() versions=()
+  mapfile -t prefixes < <(jq -r '.version_strip_prefixes[]?' <<< "$pkg_json")
+
+  local release_page page=1 page_size=100 page_count tag latest_version
+  while true; do
+    release_page=$(curl "${curl_args[@]}" "https://api.github.com/repos/${project}/releases?per_page=${page_size}&page=${page}")
+
+    if ! jq -e 'type == "array"' <<< "$release_page" >/dev/null 2>&1; then
+      local error_msg
+      error_msg=$(jq -r '.message // "Unknown API error"' <<< "$release_page" 2>/dev/null || echo "Invalid JSON response")
+      err "[$name] GitHub API error for ${project}: ${error_msg}"
+      exit 1
+    fi
+
+    page_count=$(jq 'length' <<< "$release_page")
+    while IFS= read -r tag; do
+      versions+=("$(strip_prefixes "$tag" "${prefixes[@]}")")
+    done < <(jq -r --argjson excludes "$excludes_json" '
+      .[]
       | select((.prerelease // false) | not)
       | select((.draft // false) | not)
+      | select(.tag_name | type == "string")
       | . as $release
       | select(
           if ($excludes | length) == 0 then true
           else ($excludes | all(. as $pattern | ($release.tag_name | contains($pattern) | not)))
           end
         )
-    ][0].tag_name
-  ' <<< "$releases")
+      | .tag_name
+    ' <<< "$release_page")
 
-  if [[ -z $tag || $tag == "null" ]]; then
+    [[ $page_count -lt $page_size ]] && break
+    page=$((page + 1))
+  done
+
+  latest_version=$(printf '%s\n' "${versions[@]}" | sort -V | tail -n 1)
+
+  if [[ -z $latest_version || $latest_version == "null" ]]; then
     err "[$name] Could not find a suitable GitHub release tag"
     exit 1
   fi
 
-  mapfile -t prefixes < <(jq -r '.version_strip_prefixes[]?' <<< "$pkg_json")
-  strip_prefixes "$tag" "${prefixes[@]}"
+  printf '%s\n' "$latest_version"
 }
 
 fetch_npm_version() {

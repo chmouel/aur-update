@@ -67,3 +67,11 @@ repos:
         files: 'updpkg\.sh$'
         stages: [pre-push]
         pass_filenames: false
+
+      - id: release-selection-test
+        name: Test GitHub release version selection
+        entry: bash tests/test_release_selection.sh
+        language: system
+        files: 'updpkg\.sh$|tests/test_release_selection\.sh$'
+        stages: [pre-push]
+        pass_filenames: false
