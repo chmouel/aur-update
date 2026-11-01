@@ -3,7 +3,7 @@
 # Maintainer: Chmouel Boudjnah <chmouel@chmouel.com>
 pkgname=herdr-gpui
 pkgver=20261028.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Native GPUI client for an installed Herdr daemon"
 arch=('x86_64' 'aarch64')
 url="https://github.com/penso/herdr-gpui"
@@ -23,7 +23,10 @@ source_aarch64=(
 package() {
   local _release_dir="${srcdir}/Herdr-${pkgver}-${CARCH}-unknown-linux-gnu"
 
-  install -Dm755 "${_release_dir}/bin/herdr-gpui" "${pkgdir}/usr/bin/herdr-gpui"
+  local _bin
+  for _bin in herdr-gpui herdr-remote-control herdr-acp herdr-automate; do
+    install -Dm755 "${_release_dir}/bin/${_bin}" "${pkgdir}/usr/bin/${_bin}"
+  done
   install -Dm644 "${_release_dir}/share/applications/so.pen.herdr-gpui.desktop" \
     "${pkgdir}/usr/share/applications/so.pen.herdr-gpui.desktop"
   install -Dm644 "${_release_dir}/share/icons/hicolor/scalable/apps/herdr-gpui.svg" \
