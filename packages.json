@@ -25,10 +25,10 @@
     "enabled": true
   },
   {
-    "name": "herdr-gpui",
-    "path": "aur/herdr-gpui",
+    "name": "sheprd-bin",
+    "path": "aur/sheprd-bin",
     "method": "github_release",
-    "github_project": "penso/herdr-gpui",
+    "github_project": "sheprd-labs/sheprd",
     "version_strip_prefixes": ["v"],
     "enabled": true
   },

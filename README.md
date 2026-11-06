@@ -5,6 +5,8 @@ This repository hosts multiple Arch User Repository (AUR) packages and keeps the
 - Packaging files live under `aur/<package-name>/` (for example `aur/openai-codex-bin/PKGBUILD`).
 - Update rules are declared in `packages.json` so that each package can opt into the correct update method (GitHub release or npm registry).
 - `updpkg.sh` reads that configuration, bumps `pkgver`, resets `pkgrel` to `1`, regenerates `.SRCINFO`, and prints a short summary.
+- Packages that repackage prebuilt upstream binaries keep the `-bin` suffix (for example `aur/sheprd-bin/PKGBUILD`), even when upstream renames the project.
+- A renamed package declares `provides`, `conflicts`, and `replaces` on the former name so pacman migrates existing installs instead of failing on conflicting files.
 
 ## Configuration (`packages.json`)
 
