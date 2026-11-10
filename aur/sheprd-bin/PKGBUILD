@@ -3,7 +3,7 @@
 # Maintainer: Chmouel Boudjnah <chmouel@chmouel.com>
 pkgname=sheprd-bin
 pkgver=20261108.1
-pkgrel=1
+pkgrel=2
 pkgdesc="Native GPUI client for an installed Herdr daemon (formerly herdr-gpui)"
 arch=('x86_64' 'aarch64')
 url="https://github.com/sheprd-labs/sheprd"
@@ -29,8 +29,8 @@ package() {
   install -Dm755 "${_release_dir}/bin/sheprd" "${pkgdir}/usr/bin/sheprd"
   ln -sf sheprd "${pkgdir}/usr/bin/herdr-gpui"
 
-  install -Dm644 "${_release_dir}/share/applications/so.pen.herdr-gpui.desktop" \
-    "${pkgdir}/usr/share/applications/so.pen.herdr-gpui.desktop"
+  install -Dm644 "${_release_dir}/share/applications/org.sheprd.Sheprd.desktop" \
+    "${pkgdir}/usr/share/applications/org.sheprd.Sheprd.desktop"
   install -Dm644 "${_release_dir}/share/icons/hicolor/scalable/apps/sheprd.svg" \
     "${pkgdir}/usr/share/icons/hicolor/scalable/apps/sheprd.svg"
 
